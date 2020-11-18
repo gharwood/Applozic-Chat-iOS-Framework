@@ -25,6 +25,7 @@ sample-with-framework/applozicdemo.xcodeproj/xcuserdata/divjyotsingh.xcuserdatad
 ## Build generated
 build/
 DerivedData/
+Pods/
 
 ## Various settings
 *.pbxuser
