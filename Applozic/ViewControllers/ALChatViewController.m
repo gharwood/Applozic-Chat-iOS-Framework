@@ -1218,7 +1218,9 @@ ALSoundRecorderProtocol, ALCustomPickerDelegate,ALImageSendDelegate,UIDocumentPi
         if ([channel isConversationClosed]) {
             [self freezeView:YES];
         }
-        [titleLabelButton setTitle:channel.name forState:UIControlStateNormal];
+        if(!titleLabelButton.titleLabel.text.length){
+            [titleLabelButton setTitle:channel.name forState:UIControlStateNormal];
+        }
     }
 }
 
@@ -2025,30 +2027,47 @@ ALSoundRecorderProtocol, ALCustomPickerDelegate,ALImageSendDelegate,UIDocumentPi
 
     ALChannel * alChannel = [alChannelService getChannelByKey:self.channelKey];
 
-    // Image View ....
+    
+     // Image View ....
     UIImageView *imageView = [[UIImageView alloc] init];
     NSURL * url = [NSURL URLWithString: [alChannel.metadata valueForKey:@"link"]];
-    [imageView sd_setImageWithURL:url placeholderImage:nil options:SDWebImageRefreshCached];
-
-    imageView.frame = CGRectMake(5, 5, 70, 70);
-    imageView.backgroundColor = [UIColor blackColor];
+    if ([url.absoluteString rangeOfString:@"nostockpic"].location == NSNotFound) {
+        [imageView sd_setImageWithURL:url placeholderImage:[UIImage imageNamed:@"CarDefault-no_bg_small.png"] options:SDWebImageRefreshCached];
+        imageView.frame = CGRectMake(13, 22, 50, 50);
+    }
+    
+    imageView.backgroundColor = [UIColor clearColor];
+    imageView.contentMode = UIViewContentModeScaleAspectFit;
+    imageView.clipsToBounds = YES;
     [view addSubview:imageView];
-
-
-    UILabel * priceUILabel = [[UILabel alloc] init];
-    priceUILabel.text = [alChannel.metadata valueForKey:@"price"];
-
-    priceUILabel.frame = CGRectMake( imageView.frame.size.width+ 10, imageView.frame.origin.y,
-                                    (view.frame.size.width-imageView.frame.size.width)/2, 50);
-
+    
     UILabel * titleUILabel = [[UILabel alloc] init];
+    titleUILabel.frame = CGRectMake(imageView.frame.size.width + imageView.frame.origin.x + 20,
+                               12, (view.frame.size.width- (imageView.frame.size.width + 50)), 60);
+    titleUILabel.numberOfLines = 2;
     titleUILabel.text = [alChannel.metadata valueForKey:@"title"];
+    titleUILabel.adjustsFontSizeToFitWidth = YES;
+    titleUILabel.textAlignment = NSTextAlignmentCenter;
+    
+//    imageView.frame = CGRectMake(13, 22, 50, 50);
+//    imageView.backgroundColor = [UIColor blackColor];
+//    [view addSubview:imageView];
 
 
-    titleUILabel.frame = CGRectMake(imageView.frame.size.width + 10, 58,
-                                    (view.frame.size.width-imageView.frame.size.width)-20, 50);
-    titleUILabel.numberOfLines = 1;
-    [self setLabelViews:@[titleUILabel,priceUILabel] onView:view];
+//    UILabel * priceUILabel = [[UILabel alloc] init];
+//    priceUILabel.text = [alChannel.metadata valueForKey:@"price"];
+//
+//    priceUILabel.frame = CGRectMake( imageView.frame.size.width+ 10, imageView.frame.origin.y,
+//                                    (view.frame.size.width-imageView.frame.size.width)/2, 50);
+//
+//    UILabel * titleUILabel = [[UILabel alloc] init];
+//    titleUILabel.text = [alChannel.metadata valueForKey:@"title"];
+
+
+//    titleUILabel.frame = CGRectMake(imageView.frame.size.width + 10, 58,
+//                                    (view.frame.size.width-imageView.frame.size.width)-20, 50);
+//    titleUILabel.numberOfLines = 1;
+    [self setLabelViews:@[titleUILabel] onView:view];
 
     return view;
 }
@@ -2127,8 +2146,8 @@ ALSoundRecorderProtocol, ALCustomPickerDelegate,ALImageSendDelegate,UIDocumentPi
     for (UILabel * label in labelArray)
     {
         label.textColor = [ALApplozicSettings getColorForNavigationItem];
-        label.font = [UIFont fontWithName:@"Helvetica" size:11.0];
-        [self resizeLabels:label];
+        label.font = [UIFont fontWithName:@"Helvetica" size:13.0];
+       // [self resizeLabels:label];
         [view addSubview:label];
     }
 }
