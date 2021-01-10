@@ -199,16 +199,24 @@ static int const MQTT_MAX_RETRY = 3;
     [super viewWillAppear:animated];
     [self subscribeToConversationWithCompletionHandler:^(BOOL connected) {
         if (!connected) {
-            [ALUtilityClass showRetryUIAlertControllerWithButtonClickCompletionHandler:^(BOOL clicked) {
-                if (clicked){
-                    [self subscribeToConversationWithCompletionHandler:^(BOOL connected) {
-                        if (!connected) {
-                            NSString * errorMessage = NSLocalizedStringWithDefaultValue(@"RetryConnectionError", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Failed to reconnect. Please try again later.", @"");
+            
+            [ALUserDefaultsHandler setMQTTPort:@"8080"];
+            
+            [self subscribeToConversationWithCompletionHandler:^(BOOL connected) {
+                if (!connected) {
+                    [ALUtilityClass showRetryUIAlertControllerWithButtonClickCompletionHandler:^(BOOL clicked) {
+                        if (clicked){
+                            [self subscribeToConversationWithCompletionHandler:^(BOOL connected) {
+                                if (!connected) {
+                                    NSString * errorMessage = NSLocalizedStringWithDefaultValue(@"RetryConnectionError", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Failed to reconnect. Please try again later.", @"");
 
-                            [TSMessage showNotificationWithTitle:errorMessage type:TSMessageNotificationTypeError];                        }
+                                    [TSMessage showNotificationWithTitle:errorMessage type:TSMessageNotificationTypeError];                        }
+                            }];
+                        }
                     }];
                 }
             }];
+            
         }
     }];
     if([ALApplozicSettings isDropShadowInNavigationBarEnabled])

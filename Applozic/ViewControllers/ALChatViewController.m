@@ -325,12 +325,19 @@ ALSoundRecorderProtocol, ALCustomPickerDelegate,ALImageSendDelegate,UIDocumentPi
         self.mqttObject.mqttConversationDelegate = self;
         [self subscribeToConversationWithCompletionHandler:^(BOOL connected) {
             if (!connected) {
-                [ALUtilityClass showRetryUIAlertControllerWithButtonClickCompletionHandler:^(BOOL clicked) {
-                    if (clicked){
-                        [self subscribeToConversationWithCompletionHandler:^(BOOL connected) {
-                            if (!connected) {
-                                NSString * errorMessage =  NSLocalizedStringWithDefaultValue(@"RetryConnectionError", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Failed to reconnect. Please try again later.", @"");
-                                [TSMessage showNotificationWithTitle:errorMessage type:TSMessageNotificationTypeError];
+                
+                [ALUserDefaultsHandler setMQTTPort:@"8080"];
+                
+                [self subscribeToConversationWithCompletionHandler:^(BOOL connected) {
+                    if (!connected) {
+                        [ALUtilityClass showRetryUIAlertControllerWithButtonClickCompletionHandler:^(BOOL clicked) {
+                            if (clicked){
+                                [self subscribeToConversationWithCompletionHandler:^(BOOL connected) {
+                                    if (!connected) {
+                                        NSString * errorMessage =  NSLocalizedStringWithDefaultValue(@"RetryConnectionError", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Failed to reconnect. Please try again later.", @"");
+                                        [TSMessage showNotificationWithTitle:errorMessage type:TSMessageNotificationTypeError];
+                                    }
+                                }];
                             }
                         }];
                     }
