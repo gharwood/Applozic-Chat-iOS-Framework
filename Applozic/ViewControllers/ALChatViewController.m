@@ -1260,7 +1260,6 @@ ALSoundRecorderProtocol, ALCustomPickerDelegate,ALImageSendDelegate,UIDocumentPi
     if(self.contactIds && !self.channelKey) {
         [self getUserInformation];
     } else if (channel && ![ALApplozicSettings isGroupInfoDisabled]
-               && (![channel isGroupOfTwo])
                && ![channel isDeleted]
                && ![channel isConversationClosed]
                && ![channel isOpenGroup]) {

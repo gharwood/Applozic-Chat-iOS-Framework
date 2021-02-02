@@ -208,7 +208,12 @@ static NSString *const updateGroupMembersNotification = @"Updated_Group_Members"
 
     ALChannelService * channnelService = [[ALChannelService alloc] init];
     self.alChannel = [channnelService getChannelByKey:self.channelKeyID];
-    self.groupName = self.alChannel.name;
+    if([self.alChannel.metadata  valueForKey:@"groupName"]){
+        self.groupName = [self.alChannel.metadata  valueForKey:@"groupName"];
+    } else {
+        self.groupName = self.alChannel.name;
+    }
+    
     colors = [[NSArray alloc] initWithObjects:@"#617D8A",@"#628B70",@"#8C8863",@"8B627D",@"8B6F62", nil];
 
     screenWidth = [UIScreen mainScreen].bounds.size.width;
