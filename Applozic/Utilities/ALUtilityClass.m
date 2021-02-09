@@ -238,6 +238,14 @@
     else {
         title=dpName.getDisplayName;
     }
+    
+    NSCharacterSet* notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
+    if ([title rangeOfCharacterFromSet:notDigits].location == NSNotFound)
+    {
+        // newString consists only of the digits 0 through 9 - must be a UserID
+        title=dpName.getDisplayName;
+    }
+    
 
     ALPushAssist* top=[[ALPushAssist alloc] init];
     UIImage *appIcon = [UIImage imageNamed: [[[[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIcons"] objectForKey:@"CFBundlePrimaryIcon"] objectForKey:@"CFBundleIconFiles"] objectAtIndex:0]];
@@ -256,7 +264,7 @@
                                        callback:^(void){
         
                                            
-                                           [delegate thirdPartyNotificationTap1:contactId withGroupId:groupID withConversationId: conversationId notificationTapActionDisable:isTapActionDisabled];
+                                           [delegate thirdPartyNotificationTap1:contactId withGroupId:groupID withConversationId: conversationId notificationTapActionDisable:isTapActionDisabled evalLaunched:NO];
 
         
     }buttonTitle:nil buttonCallback:nil atPosition:TSMessageNotificationPositionTop canBeDismissedByUser:YES];
@@ -285,6 +293,13 @@
         contactId=[NSString stringWithFormat:@"%@",groupID];
     }
     else {
+        title=dpName.getDisplayName;
+    }
+    
+    NSCharacterSet* notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
+    if ([title rangeOfCharacterFromSet:notDigits].location == NSNotFound)
+    {
+        // newString consists only of the digits 0 through 9 - must be a UserID
         title=dpName.getDisplayName;
     }
 

@@ -28,7 +28,7 @@
 @property(strong,nonatomic) NSString * contactId;
 @property(strong,nonatomic) NSMutableDictionary* dict2;
 
--(void)thirdPartyNotificationTap1:(NSString *)contactId withGroupId:(NSNumber*) groupID withConversationId:(NSNumber *) conversationId notificationTapActionDisable:(BOOL) isTapActionDisabled;
+-(void)thirdPartyNotificationTap1:(NSString *)contactId withGroupId:(NSNumber*) groupID withConversationId:(NSNumber *) conversationId notificationTapActionDisable:(BOOL) isTapActionDisabled evalLaunched:(BOOL) isEvalLaunced;
 
 -(void)proactivelyConnectMQTT;
 -(void)proactivelyDisconnectMQTT;
