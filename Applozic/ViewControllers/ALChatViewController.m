@@ -326,6 +326,8 @@ ALSoundRecorderProtocol, ALCustomPickerDelegate,ALImageSendDelegate,UIDocumentPi
         [self subscribeToConversationWithCompletionHandler:^(BOOL connected) {
             if (!connected) {
                 
+                CFRunLoopRunInMode(kCFRunLoopDefaultMode, 5.0, false);
+
                 [ALUserDefaultsHandler setMQTTPort:@"8080"];
                 
                 [self subscribeToConversationWithCompletionHandler:^(BOOL connected) {
@@ -4333,20 +4335,90 @@ ALSoundRecorderProtocol, ALCustomPickerDelegate,ALImageSendDelegate,UIDocumentPi
 
     if([ALDataNetworkConnection checkDataNetworkAvailable]) {
         if (self.mqttObject) {
-            self.mqttObject.mqttConversationDelegate = self;
-            [self.mqttObject subscribeToConversationWithTopic:[ALUserDefaultsHandler getUserKeyString] withCompletionHandler:^(BOOL subscribed, NSError *error) {
-                if (error) {
-                    ALSLog(ALLoggerSeverityError, @"MQTT subscribe to conversation failed with error %@", error);
-                    completion(false);
-                    return;
+            [self doSubscribe:^(BOOL connected, NSError *error) {
+                if (!connected) {
+                    ALSLog(ALLoggerSeverityError, @"MQTT subscribe to conversation failed to retry on mqttConnectionClosed in ALChatViewController");
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^ {
+                        
+                        [self doSubscribe:^(BOOL connected, NSError *error) {
+                            if (!connected) {
+                                ALSLog(ALLoggerSeverityError, @"MQTT subscribe to conversation failed to retry on mqttConnectionClosed in ALChatViewController");
+                                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^ {
+                                        [self doSubscribe:^(BOOL connected, NSError *error) {
+                                            if (!connected) {
+                                                ALSLog(ALLoggerSeverityError, @"MQTT subscribe to conversation failed to retry on mqttConnectionClosed in ALChatViewController");
+                                                CFRunLoopRunInMode(kCFRunLoopDefaultMode, 5.0, false);
+
+                                            } else {
+                                                completion(true);
+                                            }
+                                        }];
+                                });
+                                [self doSubscribe:^(BOOL connected, NSError *error) {
+                                    if (!connected) {
+                                        ALSLog(ALLoggerSeverityError, @"MQTT subscribe to conversation failed to retry on mqttConnectionClosed in ALChatViewController");
+                                        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 5.0, false);
+                                        [self doSubscribe:^(BOOL connected, NSError *error) {
+                                            if (!connected) {
+                                                ALSLog(ALLoggerSeverityError, @"MQTT subscribe to conversation failed to retry on mqttConnectionClosed in ALChatViewController");
+                                                CFRunLoopRunInMode(kCFRunLoopDefaultMode, 5.0, false);
+
+                                            } else {
+                                                completion(true);
+                                            }
+                                        }];
+                                    } else {
+                                        completion(true);
+                                    }
+                                }];
+                            } else {
+                                completion(true);
+                            }
+                        }];
+                        
+                    });
+                    
+                } else {
+                    completion(true);
                 }
-                [self subscrbingChannel];
-                completion(true);
             }];
         }
     } else {
-        completion(false);
+
+        [self doSubscribe:^(BOOL connected, NSError *error) {
+            if (!connected) {
+                ALSLog(ALLoggerSeverityError, @"MQTT subscribe to conversation failed to retry on mqttConnectionClosed in ALChatViewController");
+                CFRunLoopRunInMode(kCFRunLoopDefaultMode, 5.0, false);
+                [self doSubscribe:^(BOOL connected, NSError *error) {
+                    if (!connected) {
+                        ALSLog(ALLoggerSeverityError, @"MQTT subscribe to conversation failed to retry on mqttConnectionClosed in ALChatViewController");
+                        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 5.0, false);
+
+                    } else {
+                        completion(true);
+                    }
+                }];
+            } else {
+                completion(true);
+            }
+        }];        completion(false);
     }
+}
+
+-(void)doSubscribe:(void (^)(BOOL subscribed, NSError *error))completion
+{
+    self.mqttObject.mqttConversationDelegate = self;
+
+    [self.mqttObject subscribeToConversationWithTopic:[ALUserDefaultsHandler getUserKeyString] withCompletionHandler:^(BOOL subscribed, NSError *error) {
+        if (error) {
+            ALSLog(ALLoggerSeverityError, @"MQTT subscribe to conversation failed with error %@", error);
+            completion(false, error);
+            return;
+        }
+        [self subscrbingChannel];
+        completion(true, error);
+        return;
+    }];
 }
 
 -(void)appWillEnterForegroundInChat:(NSNotification *)notification
